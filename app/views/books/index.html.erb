@@ -1,0 +1,73 @@
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h1><i class="fas fa-books"></i> Books Library</h1>
+  </div>
+  <div class="col-md-4 text-end">
+    <% if current_user&.librarian? %>
+      <%= link_to "Add New Book", new_book_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <form method="get" action="/books" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Search..." value="<%= params[:q] %>">
+      </div>
+      <div class="col-md-4">
+        <select name="search_type" class="form-select">
+          <option value="title" <%= "selected" if params[:search_type] == "title" %>>Search by Title</option>
+          <option value="author" <%= "selected" if params[:search_type] == "author" %>>Search by Author</option>
+          <option value="genre" <%= "selected" if params[:search_type] == "genre" %>>Search by Genre</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-success w-100">
+          <i class="fas fa-search"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <% @books.each do |book| %>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= book.title %></h5>
+          <p class="card-text">
+            <strong>Author:</strong> <%= book.author %><br>
+            <strong>Genre:</strong> <%= book.genre %><br>
+            <strong>ISBN:</strong> <%= book.isbn %><br>
+            <strong>Available:</strong> 
+            <% if book.available? %>
+              <span class="badge bg-success"><%= book.available_copies %></span>
+            <% else %>
+              <span class="badge bg-danger">Out of Stock</span>
+            <% end %>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-top">
+          <div class="btn-group w-100" role="group">
+            <%= link_to "View", book_path(book), class: "btn btn-info btn-sm" %>
+            <% if current_user&.librarian? %>
+              <%= link_to "Edit", edit_book_path(book), class: "btn btn-warning btn-sm" %>
+              <%= link_to "Delete", book_path(book), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %>
+            <% end %>
+            <% if current_user&.member? && book.available? && !book.already_borrowed_by?(current_user) %>
+              <%= link_to "Borrow", book_borrows_path(book), method: :post, class: "btn btn-success btn-sm" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @books.empty? %>
+  <div class="alert alert-info" role="alert">
+    <i class="fas fa-info-circle"></i> No books found. Try another search.
+  </div>
+<% end %>

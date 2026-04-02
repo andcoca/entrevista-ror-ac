@@ -1,0 +1,141 @@
+<div class="row mb-4">
+  <div class="col-md-12">
+    <h1><i class="fas fa-book-reader"></i> My Borrowed Books</h1>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Active Borrows</h5>
+        <p class="card-text display-4"><%= current_user.borrows.active.count %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card text-white bg-warning">
+      <div class="card-body">
+        <h5 class="card-title">Due Today</h5>
+        <p class="card-text display-4"><%= current_user.borrows.due_today.count %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card text-white bg-danger">
+      <div class="card-body">
+        <h5 class="card-title">Overdue Books</h5>
+        <p class="card-text display-4"><%= current_user.borrows.overdue.count %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card text-white bg-secondary">
+      <div class="card-body">
+        <h5 class="card-title">Returned</h5>
+        <p class="card-text display-4"><%= current_user.borrows.returned.count %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="fas fa-book"></i> Active Borrowed Books</h5>
+      </div>
+      <div class="card-body">
+        <% active_borrows = current_user.borrows.active.includes(:book) %>
+        <% if active_borrows.any? %>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Book Title</th>
+                  <th>Author</th>
+                  <th>Borrowed Date</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% active_borrows.each do |borrow| %>
+                  <tr class="<%= 'table-danger' if borrow.overdue? %>">
+                    <td><strong><%= link_to borrow.book.title, book_path(borrow.book) %></strong></td>
+                    <td><%= borrow.book.author %></td>
+                    <td><%= borrow.borrowed_at.strftime("%B %d, %Y") %></td>
+                    <td>
+                      <span class="badge <%= borrow.overdue? ? 'bg-danger' : (borrow.due_today? ? 'bg-warning' : 'bg-success') %>">
+                        <%= borrow.due_at.strftime("%B %d, %Y") %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if borrow.overdue? %>
+                        <span class="badge bg-danger"><i class="fas fa-exclamation-triangle"></i> Overdue (<%= borrow.days_overdue %> days)</span>
+                      <% elsif borrow.due_today? %>
+                        <span class="badge bg-warning"><i class="fas fa-clock"></i> Due Today</span>
+                      <% else %>
+                        <span class="badge bg-success"><i class="fas fa-check"></i> Due in <%= borrow.days_until_due %> days</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= button_to "Return", borrow_path(borrow), method: :patch, params: { returned: true }, class: "btn btn-success btn-sm" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> You haven't borrowed any books yet. <%= link_to "Browse Books", books_path %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="fas fa-archive"></i> Returned Books</h5>
+      </div>
+      <div class="card-body">
+        <% returned_borrows = current_user.borrows.returned.includes(:book) %>
+        <% if returned_borrows.any? %>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Book Title</th>
+                  <th>Author</th>
+                  <th>Returned Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% returned_borrows.each do |borrow| %>
+                  <tr>
+                    <td><%= link_to borrow.book.title, book_path(borrow.book) %></td>
+                    <td><%= borrow.book.author %></td>
+                    <td><%= borrow.returned_at.strftime("%B %d, %Y") %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> You haven't returned any books yet.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

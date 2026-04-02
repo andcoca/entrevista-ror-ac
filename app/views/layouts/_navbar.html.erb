@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <i class="fas fa-book"></i> Library Management
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <% if user_signed_in? %>
+          <li class="nav-item">
+            <%= link_to "Books", books_path, class: "nav-link" %>
+          </li>
+          <% if current_user.librarian? %>
+            <li class="nav-item">
+              <%= link_to "Librarian Dashboard", librarian_dashboard_path, class: "nav-link" %>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <%= link_to "My Borrows", member_dashboard_path, class: "nav-link" %>
+            </li>
+          <% end %>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> <%= current_user.email %>
+            </a>
+            <ul class="dropdown-menu">
+              <li><%= link_to "Edit Profile", edit_registration_path, class: "dropdown-item" %></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <%= button_to "Logout", destroy_session_path, method: :delete, class: "dropdown-item" %>
+              </li>
+            </ul>
+          </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "Login", new_session_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Register", new_registration_path, class: "nav-link" %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,44 @@
+<div class="row mb-4">
+  <div class="col-md-12">
+    <%= link_to "← Back to Books", books_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <h1><%= @book.title %></h1>
+    
+    <div class="card">
+      <div class="card-body">
+        <p class="card-text">
+          <strong>Author:</strong> <%= @book.author %><br>
+          <strong>Genre:</strong> <%= @book.genre %><br>
+          <strong>ISBN:</strong> <%= @book.isbn %><br>
+          <strong>Total Copies:</strong> <%= @book.total_copies %><br>
+          <strong>Available Copies:</strong> 
+          <% if @book.available? %>
+            <span class="badge bg-success"><%= @book.available_copies %></span>
+          <% else %>
+            <span class="badge bg-danger">Out of Stock</span>
+          <% end %>
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <% if current_user&.librarian? %>
+        <%= link_to "Edit", edit_book_path(@book), class: "btn btn-warning" %>
+        <%= link_to "Delete", book_path(@book), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+      <% end %>
+      <% if current_user&.member? && @book.available? && !@book.already_borrowed_by?(current_user) %>
+        <%= link_to "Borrow Book", book_borrows_path(@book), method: :post, class: "btn btn-success" %>
+      <% end %>
+    </div>
+
+    <% if @book.already_borrowed_by?(current_user) %>
+      <div class="alert alert-warning mt-3" role="alert">
+        <i class="fas fa-info-circle"></i> You have already borrowed this book.
+      </div>
+    <% end %>
+  </div>
+</div>

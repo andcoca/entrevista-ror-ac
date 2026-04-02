@@ -1,0 +1,28 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Users</h1>
+
+<!-- Search Form -->
+<%= form_with url: users_path, method: :get, local: true do %>
+  <%= label_tag :search, "Search by Name:" %>
+  <%= text_field_tag :search, params[:search], placeholder: "Enter name..." %>
+
+  <%= label_tag :date, "Search by created Date:" %>
+  <%= date_field_tag :start_date, params[:start_date], class: "date-picker" %> - 
+  <%= date_field_tag :end_date, params[:end_date], class: "date-picker" %>
+
+  <%= submit_tag "Search" %>
+  <%= link_to "Reset", users_path, class: "button" %> <!-- Reset button -->
+<% end %>
+
+<div id="users">
+  <% @users.each do |user| %>
+    <%= render user %>
+    <p>
+      <%= link_to "Show this user", user %>
+    </p>
+  <% end %>
+  <%= paginate @users %>
+</div>
+
+<%= link_to "New user", new_user_path %>
